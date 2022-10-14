@@ -9,8 +9,8 @@ import picocli.CommandLine.Command;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-@Command(name = "db-list", 
-         description = "Display the list of Databases in an organization")
+@Command(name = "list", 
+         description = "List databases")
 public class DbListCmd extends AbstractConnectedCmd {
    
     /** {@inheritDoc} */

@@ -19,7 +19,6 @@ public class ConfigListCmd extends AbstractCmd {
     /** {@inheritDoc} */
     @Override
     public void execute() {
-        
         OperationsConfig.listConfigurations();
     }
     

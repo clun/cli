@@ -19,7 +19,7 @@ import picocli.CommandLine.Option;
  * @author Cedrick LUNVEN (@clunven)
  */
 @Command(name = "setup",
-         description = "Initialize configuration with a token",
+         description = "Init local configuration with token",
          mixinStandardHelpOptions = true)
 public class SetupCmd extends AbstractCmd {
     

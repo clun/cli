@@ -35,8 +35,8 @@ public abstract class AbstractCmd implements Runnable, CliConstants {
     /**
      * File on disk to reuse configuration.
      */
-    @Option(names = { "-cf, --conf" }, 
-            paramLabel = "CONF",
+    @Option(names = { "-cf, --config-file" }, 
+            paramLabel = "CONFIF_FILE",
             description= "Configuration file (default = ~/.astrarc)")
     protected String configFilename = AstraConfiguration.getDefaultConfigurationFileName();
     

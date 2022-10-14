@@ -24,6 +24,8 @@
 		<astra-sdk.version>0.3.4</astra-sdk.version>
 		<logback.version>1.4.1</logback.version>
 		<slf4j.version>2.0.0</slf4j.version>
+		<commons-compress.version>1.21</commons-compress.version>
+		
 		<app.main.class>com.datastax.astra.cli.AstraCli</app.main.class>
 	</properties>
 
@@ -41,7 +43,13 @@
 			<artifactId>logback-core</artifactId>
 			<version>${logback.version}</version>
 		</dependency>
-
+		
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>${commons-compress.version}</version>
+		</dependency>
+		
 		<!-- Leveraging SDK for Astra Accesses -->
 		<dependency>
 			<groupId>com.datastax.astra</groupId>

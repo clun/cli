@@ -11,6 +11,11 @@ import com.datastax.astra.cli.core.CliExecutionExceptionHandler;
 import com.datastax.astra.cli.core.CliExitCodeExceptionMapper;
 import com.datastax.astra.cli.core.CliParameterExceptionHandler;
 import com.datastax.astra.cli.core.CliVersionProvider;
+import com.datastax.astra.cli.db.DbCmd;
+import com.datastax.astra.cli.iam.RoleCmd;
+import com.datastax.astra.cli.iam.UserCmd;
+import com.datastax.astra.cli.org.OrgCmd;
+import com.datastax.astra.cli.streaming.StreamingCmd;
 
 import io.micronaut.configuration.picocli.MicronautFactory;
 import io.micronaut.context.ApplicationContext;
@@ -37,8 +42,7 @@ import picocli.CommandLine.HelpCommand;
          "@|green,bold          \\/     \\/                   \\/ |@",
          "@|green,bold   |@ "},
          mixinStandardHelpOptions = true,
-         versionProvider = CliVersionProvider.class, 
-         subcommands = { SetupCmd.class, ConfigCommand.class, HelpCommand.class})
+         versionProvider = CliVersionProvider.class)
 public class AstraCli {
     
     /**
@@ -98,7 +102,15 @@ public class AstraCli {
                     .setExitCodeExceptionMapper(new CliExitCodeExceptionMapper())
                     // Color scheme
                     .setColorScheme(colorScheme)
-                    // run
+                    // SubCommands
+                    .addSubcommand(new HelpCommand())
+                    .addSubcommand(new SetupCmd())
+                    .addSubcommand(new ConfigCommand())
+                    .addSubcommand(new DbCmd())
+                    .addSubcommand(new StreamingCmd())
+                    .addSubcommand(new OrgCmd())
+                    .addSubcommand(new RoleCmd())
+                    .addSubcommand(new UserCmd())
                     .execute(args);
         }
     }
