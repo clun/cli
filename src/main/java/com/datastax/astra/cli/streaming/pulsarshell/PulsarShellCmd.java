@@ -52,6 +52,7 @@ public class PulsarShellCmd extends AbstractConnectedCmd {
             description= "Display raw output of the commands without the fancy progress visualization. ")
     protected boolean noProgress = false;
     
+    /** Pulsar Shell Layer. */
     @Inject
     protected PulsarShellService pulsarShellService;
     

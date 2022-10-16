@@ -48,6 +48,11 @@ import io.micronaut.http.client.netty.DefaultHttpClient;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+/**
+ * Service layer to work with database.
+ *
+ * @author Cedrick LUNVEN (@clunven)
+ */
 @Singleton
 public class DatabaseService implements DatabaseConstants {
     

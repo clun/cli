@@ -225,8 +225,8 @@ public class DsBulkService {
     /**
      * Run a Load command.
      * 
-     * @param load
-     *      current command line
+     * @param cmd
+     *      command to be executed
      */
     public void load(DbLoadCmd cmd) {
         List<String> dsbulkCmd = initCommandLine(DsBulkOperations.load);
@@ -243,7 +243,7 @@ public class DsBulkService {
      * 
      * @param cmd
      *      current command line
-     */ 
+     */
     public void count(DbCountCmd cmd) {
         List<String> dsbulkCmd = initCommandLine(DsBulkOperations.count);
         addCoreOptions(dsbulkCmd, cmd);

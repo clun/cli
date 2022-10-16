@@ -15,7 +15,6 @@ import com.datastax.astra.cli.streaming.AstraStreamingDao;
 import com.datastax.astra.cli.streaming.exception.TenantNotFoundException;
 import com.datastax.astra.cli.utils.AstraCliUtils;
 import com.datastax.astra.cli.utils.FileUtils;
-import com.datastax.astra.cli.utils.PulsarShellSettings;
 import com.datastax.astra.sdk.streaming.domain.Tenant;
 
 import jakarta.annotation.PostConstruct;
@@ -62,7 +61,6 @@ public class PulsarShellService {
      *      current tenant
      */
     public void createPulsarConf(Tenant tenant) {
-        
         FileWriter fileWriter = null;
         PrintWriter pw        = null;
         try {
@@ -158,11 +156,6 @@ public class PulsarShellService {
     
     /**
      * Download targz and unzip.
-     *
-     * @param settings
-     *      settings coming from properties
-     * @throws FileSystemException
-     *      file system exception 
      */
     public void install() 
     throws FileSystemException {
