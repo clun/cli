@@ -19,18 +19,23 @@ import com.datastax.astra.cli.streaming.exception.TenantAlreadyExistExcepion;
 import com.datastax.astra.cli.streaming.exception.TenantNotFoundException;
 import com.datastax.astra.cli.streaming.pulsarshell.PulsarShellOptions;
 import com.datastax.astra.cli.streaming.pulsarshell.PulsarShellUtils;
+import com.datastax.astra.cli.utils.PulsarShellSettings;
 import com.datastax.astra.sdk.streaming.StreamingClient;
 import com.datastax.astra.sdk.streaming.TenantClient;
 import com.datastax.astra.sdk.streaming.domain.CreateTenant;
 import com.datastax.astra.sdk.streaming.domain.Tenant;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Utility class for command `streaming`
  *
  * @author Cedrick LUNVEN (@clunven)
  */
+@Singleton
 public class OperationsStreaming {
-
+    
     /** Command constants. */
     public static final String CMD_STATUS    = "status";
     /** Command constants. */
@@ -60,6 +65,9 @@ public class OperationsStreaming {
     
     /** limit resource usage by caching tenant clients. */
     private static Map<String, TenantClient> cacheTenantClient = new HashMap<>();
+    
+    @Inject
+    private PulsarShellSettings pulsarShellSettings;
     
     /**
      * Hide default constructor
@@ -269,8 +277,8 @@ public class OperationsStreaming {
      * @return
      *      configuration file
      */
-    private static File getPulsarConfFile(Tenant tenant) {
-        return new File(PulsarShellUtils.getConfigurationFolder() + 
+    private File getPulsarConfFile(Tenant tenant) {
+        return new File(PulsarShellUtils.getConfigurationFolder(pulsarShellSettings) + 
                 File.separator + "client" 
                 + "-" + tenant.getCloudProvider() 
                 + "-" + tenant.getCloudRegion()
@@ -284,7 +292,7 @@ public class OperationsStreaming {
      * @param tenant
      *      current tenant
      */
-    public static void createPulsarConf(Tenant tenant) {
+    public void createPulsarConf(Tenant tenant) {
         PulsarShellUtils.generateConf(
                 tenant.getCloudProvider() , 
                 tenant.getCloudRegion(), 
@@ -307,21 +315,21 @@ public class OperationsStreaming {
      * @throws FileSystemException
      *      cannot access configuration file
      */
-    public static void startPulsarShell(PulsarShellOptions options, String tenantName) 
+    public void startPulsarShell(PulsarShellOptions options, String tenantName) 
     throws TenantNotFoundException, CannotStartProcessException, FileSystemException {
         
         // Retrieve tenant information from devops Apis or exception
         Tenant tenant = getTenant(tenantName);
         
         // Download and install pulsar-shell tarball when needed
-        PulsarShellUtils.installPulsarShell();
+        PulsarShellUtils.installPulsarShell(pulsarShellSettings);
         
         // Generating configuration file if needed (~/.astra/lunastreaming-shell-2.10.1.1/conf/...)
         createPulsarConf(tenant);
         
         try {
             System.out.println("Pulsar-shell is starting please wait for connection establishment...");
-            Process cqlShProc = PulsarShellUtils.runPulsarShell(options, tenant, getPulsarConfFile(tenant));
+            Process cqlShProc = PulsarShellUtils.runPulsarShell(pulsarShellSettings, options, tenant, getPulsarConfFile(tenant));
             cqlShProc.waitFor();
         } catch (Exception e) {
             Thread.currentThread().interrupt();

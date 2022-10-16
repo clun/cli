@@ -1,12 +1,9 @@
 package com.datastax.astra.cli.db.keyspace;
 
 import com.datastax.astra.cli.core.AbstractConnectedCmd;
-import com.datastax.astra.cli.core.exception.InvalidArgumentException;
-import com.datastax.astra.cli.db.OperationsDb;
-import com.datastax.astra.cli.db.exception.DatabaseNameNotUniqueException;
-import com.datastax.astra.cli.db.exception.DatabaseNotFoundException;
-import com.datastax.astra.cli.db.exception.KeyspaceAlreadyExistException;
+import com.datastax.astra.cli.db.DatabaseService;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -16,8 +13,10 @@ import picocli.CommandLine.Parameters;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-@Command(name = OperationsDb.CMD_CREATE_KEYSPACE, 
-         description = "Create keyspace")
+@Command(name = "create-keyspace", 
+         description = "Create keyspace",
+         synopsisHeading = "%nUsage: ",
+         mixinStandardHelpOptions = true)
 public class DbCreateKeyspaceCmd extends AbstractConnectedCmd {
     
     /**
@@ -45,11 +44,12 @@ public class DbCreateKeyspaceCmd extends AbstractConnectedCmd {
             description = "will create a new DB only if none with same name")
     protected boolean ifNotExist = false;
     
+    @Inject
+    DatabaseService dbService;
+    
     /** {@inheritDoc}  */
-    public void execute()
-    throws DatabaseNameNotUniqueException, DatabaseNotFoundException,
-           InvalidArgumentException, KeyspaceAlreadyExistException  {
-        OperationsDb.createKeyspace(db, keyspace, ifNotExist);
+    public void execute() {
+        dbService.createKeyspace(db, keyspace, ifNotExist);
     }
     
 }

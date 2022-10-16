@@ -12,12 +12,17 @@ import org.slf4j.LoggerFactory;
 
 import com.datastax.astra.cli.streaming.pulsarshell.PulsarShellUtils;
 import com.datastax.astra.cli.test.AbstractCmdTest;
+import com.datastax.astra.cli.utils.PulsarShellSettings;
+
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
 /**
  * Pulsar Shell.S
  *
  * @author Cedrick LUNVEN (@clunven)
  */
+@MicronautTest
 public class PulsarShellTest extends AbstractCmdTest {
     
     /** Logger for my test. */
@@ -40,14 +45,17 @@ public class PulsarShellTest extends AbstractCmdTest {
         assertSuccessCli("streaming create " + RANDOM_TENANT);
     }
     
+    @Inject
+    public PulsarShellSettings pulsarSettings;
+    
     @Test
     @Order(1)
     public void should_install_pulsarshell()  throws Exception {
         if (disableTools) {
             LOGGER.warn("Third Party tool is disabled for this test environment");
         } else {
-            PulsarShellUtils.installPulsarShell();
-            Assertions.assertTrue(PulsarShellUtils.isPulsarShellInstalled());
+            PulsarShellUtils.installPulsarShell(pulsarSettings);
+            Assertions.assertTrue(PulsarShellUtils.isPulsarShellInstalled(pulsarSettings));
         }
     }
     

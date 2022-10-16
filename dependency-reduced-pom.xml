@@ -11,6 +11,30 @@
   <artifactId>micronaut-astra-cli</artifactId>
   <packaging>${packaging}</packaging>
   <version>0.1</version>
+  <developers>
+    <developer>
+      <id>clunven</id>
+      <name>Cedrick Lunven</name>
+      <email>cedrick.lunven@gmail.com</email>
+      <url>https://github.com/clun</url>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>Apache 2</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:git@github.com:datastax/astra-cli.git</connection>
+    <developerConnection>scm:git:git@github.com:datastax/astra-cli.git</developerConnection>
+    <url>https://github.com/datastax/astra-cli</url>
+  </scm>
+  <organization>
+    <name>DataStax</name>
+    <url>http://datastax.com</url>
+  </organization>
   <build>
     <plugins>
       <plugin>
@@ -92,6 +116,67 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${version.maven.plugin.javadoc}</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <source>${maven.plugin.javadoc.source}</source>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
+        <version>${version.maven.plugin.coveralls}</version>
+        <dependencies>
+          <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <repoToken>C6a5Wv1zSLqjPTMwUEEbpjLatkGDyg4yl</repoToken>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${version.maven.plugin.jacoco}</version>
+        <executions>
+          <execution>
+            <id>default-prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-prepare-agent-integration</id>
+            <goals>
+              <goal>prepare-agent-integration</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-report</id>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-report-integration</id>
+            <goals>
+              <goal>report-integration</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <repositories>
@@ -162,16 +247,25 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
   <properties>
+    <version.maven.plugin.coveralls>4.3.0</version.maven.plugin.coveralls>
+    <packaging>jar</packaging>
+    <commons-compress.version>1.21</commons-compress.version>
+    <astra-sdk.version>0.3.4</astra-sdk.version>
     <micronaut.version>3.7.1</micronaut.version>
     <release.version>17</release.version>
     <slf4j.version>2.0.0</slf4j.version>
+    <version.maven.plugin.javadoc>3.4.1</version.maven.plugin.javadoc>
     <jansi.version>2.4.0</jansi.version>
-    <packaging>jar</packaging>
     <jdk.version>17</jdk.version>
-    <commons-compress.version>1.21</commons-compress.version>
-    <astra-sdk.version>0.3.4</astra-sdk.version>
     <logback.version>1.4.1</logback.version>
     <app.main.class>com.datastax.astra.cli.AstraCli</app.main.class>
+    <version.maven.plugin.jacoco>0.8.8</version.maven.plugin.jacoco>
   </properties>
 </project>

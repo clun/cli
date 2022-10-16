@@ -7,6 +7,7 @@ import com.datastax.astra.cli.db.exception.DatabaseNotFoundException;
 import com.datastax.astra.cli.db.exception.InvalidDatabaseStateException;
 import com.datastax.astra.sdk.databases.domain.DatabaseStatusType;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -17,8 +18,10 @@ import picocli.CommandLine.Parameters;
  * @author Cedrick LUNVEN (@clunven)
  */
 @Command(
-        name = OperationsDb.CMD_RESUME, 
-        description = "Resume a db if needed")
+        name = "resume", 
+        description = "Resume a db if needed",
+        synopsisHeading = "%nUsage: ",
+        mixinStandardHelpOptions = true)
 public class DbResumeCmd extends AbstractConnectedCmd {
     
     /**
@@ -44,13 +47,19 @@ public class DbResumeCmd extends AbstractConnectedCmd {
             description = "Wait timeout in seconds (default: 180)")
     protected int timeout = 180;
     
+    /**
+     * Working with databases.
+     */
+    @Inject 
+    DatabaseService dbService;
+    
     /** {@inheritDoc}  */
     public void execute() 
     throws DatabaseNameNotUniqueException, DatabaseNotFoundException, 
            InvalidDatabaseStateException  {
-        OperationsDb.resumeDb(db);
+        dbService.resumeDb(db);
         if (wait) {
-           switch(OperationsDb.waitForDbStatus(db, DatabaseStatusType.ACTIVE, timeout)) {
+           switch(dbService.waitForDbStatus(db, DatabaseStatusType.ACTIVE, timeout)) {
             case NOT_FOUND:
                 throw new DatabaseNotFoundException(db);
             case UNAVAILABLE:

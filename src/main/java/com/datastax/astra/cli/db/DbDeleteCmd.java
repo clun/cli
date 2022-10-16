@@ -2,10 +2,8 @@ package com.datastax.astra.cli.db;
 
 import com.datastax.astra.cli.core.AbstractCmd;
 import com.datastax.astra.cli.core.AbstractConnectedCmd;
-import com.datastax.astra.cli.core.exception.InvalidArgumentException;
-import com.datastax.astra.cli.db.exception.DatabaseNameNotUniqueException;
-import com.datastax.astra.cli.db.exception.DatabaseNotFoundException;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -17,6 +15,7 @@ import picocli.CommandLine.Parameters;
 @Command(
         name = AbstractCmd.DELETE, 
         description = "Delete a database",
+        synopsisHeading = "%nUsage: ",
         mixinStandardHelpOptions = true)
 public class DbDeleteCmd extends AbstractConnectedCmd {
     
@@ -29,10 +28,15 @@ public class DbDeleteCmd extends AbstractConnectedCmd {
             description = "Database name or id")
     public String db;
     
+    /**
+     * Working with databases.
+     */
+    @Inject 
+    DatabaseService dbService;
+    
     /** {@inheritDoc} */
-    public void execute()
-    throws DatabaseNameNotUniqueException, DatabaseNotFoundException, InvalidArgumentException {
-        OperationsDb.deleteDb(db);
+    public void execute() {
+        dbService.deleteDb(db);
     }
     
 }

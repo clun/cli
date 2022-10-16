@@ -1,7 +1,9 @@
 package com.datastax.astra.cli.iam;
 
-import com.datastax.astra.cli.core.AbstractConnectedCmd;
+import com.datastax.astra.cli.core.AbstractCmd;
+import com.datastax.astra.cli.utils.AstraCliUtils;
 
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /**
@@ -13,11 +15,11 @@ import picocli.CommandLine.Command;
          description = "Manage roles", 
          mixinStandardHelpOptions = true,
          subcommands = { RoleGetCmd.class, RoleListCmd.class})
-public class RoleCmd extends AbstractConnectedCmd {
+public class RoleCmd extends AbstractCmd {
    
     /** {@inheritDoc} */
     public void execute() {
-        new RoleListCmd().execute();
+        CommandLine.usage(RoleCmd.class, System.out, AstraCliUtils.COLOR_SCHEME);
     }
 
 }

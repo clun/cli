@@ -27,14 +27,11 @@
 		<commons-compress.version>1.21</commons-compress.version>
 		
 		<app.main.class>com.datastax.astra.cli.AstraCli</app.main.class>
+		
+		<version.maven.plugin.javadoc>3.4.1</version.maven.plugin.javadoc>
+		<version.maven.plugin.coveralls>4.3.0</version.maven.plugin.coveralls>
+		<version.maven.plugin.jacoco>0.8.8</version.maven.plugin.jacoco>
 	</properties>
-
-	<repositories>
-		<repository>
-			<id>central</id>
-			<url>https://repo.maven.apache.org/maven2</url>
-		</repository>
-	</repositories>
 
 	<dependencies>
 
@@ -43,11 +40,22 @@
 			<artifactId>logback-core</artifactId>
 			<version>${logback.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
 			<version>${commons-compress.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.fusesource.jansi</groupId>
+			<artifactId>jansi</artifactId>
+			<version>${jansi.version}</version>
 		</dependency>
 		
 		<!-- Leveraging SDK for Astra Accesses -->
@@ -82,26 +90,10 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
-
-		<dependency>
-			<groupId>org.fusesource.jansi</groupId>
-			<artifactId>jansi</artifactId>
-			<version>${jansi.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>io.micronaut.rxjava2</groupId>
-			<artifactId>micronaut-rxjava2-http-client</artifactId>
-		</dependency>
+		
 		<dependency>
 			<groupId>info.picocli</groupId>
 			<artifactId>picocli</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.micronaut</groupId>
-			<artifactId>micronaut-jackson-databind</artifactId>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -112,14 +104,22 @@
 
 		<dependency>
 			<groupId>io.micronaut</groupId>
+			<artifactId>micronaut-jackson-databind</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-inject</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-validation</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-http-client</artifactId>
@@ -130,26 +130,13 @@
 			<artifactId>jakarta.annotation-api</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<scope>runtime</scope>
-		</dependency>
+		
 		<dependency>
 			<groupId>io.micronaut.test</groupId>
 			<artifactId>micronaut-test-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<scope>test</scope>
-		</dependency>
+		
 	</dependencies>
 
 	<build>
@@ -164,8 +151,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<annotationProcessorPaths
-						combine.children="append">
+					<annotationProcessorPaths combine.children="append">
 						<path>
 							<groupId>info.picocli</groupId>
 							<artifactId>picocli-codegen</artifactId>
@@ -241,7 +227,119 @@
 					</execution>
 				</executions>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>${version.maven.plugin.javadoc}</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<source>${maven.plugin.javadoc.source}</source>
+				</configuration>
+			</plugin>
+			
+			<!-- Coveralls.io -->
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${version.maven.plugin.coveralls}</version>
+                <configuration>
+      				<repoToken>C6a5Wv1zSLqjPTMwUEEbpjLatkGDyg4yl</repoToken>
+			   </configuration>
+			   <dependencies>
+				<dependency>
+				    <groupId>javax.xml.bind</groupId>
+				    <artifactId>jaxb-api</artifactId>
+				    <version>2.3.1</version>
+				</dependency>  
+			   </dependencies>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${version.maven.plugin.jacoco}</version>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report-integration</id>
+                        <goals>
+                            <goal>report-integration</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+			
 		</plugins>
 	</build>
+	
+	<repositories>
+		<repository>
+			<id>central</id>
+			<url>https://repo.maven.apache.org/maven2</url>
+		</repository>
+	</repositories>
+	
+	<scm>
+		<connection>scm:git:git@github.com:datastax/astra-cli.git</connection>
+		<developerConnection>scm:git:git@github.com:datastax/astra-cli.git</developerConnection>
+		<url>https://github.com/datastax/astra-cli</url>
+		<tag>HEAD</tag>
+	</scm>
+	
+	<distributionManagement>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+	
+	<developers>
+		<developer>
+			<id>clunven</id>
+			<name>Cedrick Lunven</name>
+			<email>cedrick.lunven@gmail.com</email>
+			<url>https://github.com/clun</url>
+		</developer>
+	</developers>
+	
+	<organization>
+		<name>DataStax</name>
+		<url>http://datastax.com</url>
+	</organization>
+	
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
 
 </project>

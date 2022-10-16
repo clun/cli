@@ -1,10 +1,8 @@
 package com.datastax.astra.cli.db;
 
 import com.datastax.astra.cli.core.AbstractConnectedCmd;
-import com.datastax.astra.cli.core.exception.InvalidArgumentException;
-import com.datastax.astra.cli.db.exception.DatabaseNameNotUniqueException;
-import com.datastax.astra.cli.db.exception.DatabaseNotFoundException;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
@@ -14,8 +12,10 @@ import picocli.CommandLine.Parameters;
  * @author Cedrick LUNVEN (@clunven)
  */
 @picocli.CommandLine.Command(
-        name = OperationsDb.CMD_DOWNLOAD_SCB, 
-        description = "Download zip secure bundle")
+        name = "download-scb", 
+        description = "Download zip secure bundle",
+        synopsisHeading = "%nUsage: ",
+        mixinStandardHelpOptions = true)
 public class DbDownloadScbCmd extends AbstractConnectedCmd {
     
     /**
@@ -42,10 +42,15 @@ public class DbDownloadScbCmd extends AbstractConnectedCmd {
             description = "Destination file")
     protected String destination;
     
+    /**
+     * Working with databases.
+     */
+    @Inject
+    DatabaseDao dao;
+    
     /** {@inheritDoc} */
-    public void execute()
-    throws DatabaseNameNotUniqueException, DatabaseNotFoundException, InvalidArgumentException {
-        OperationsDb.downloadCloudSecureBundle(db, region, destination);
+    public void execute() {
+        dao.downloadCloudSecureBundle(db, region, destination);
     }
     
 }

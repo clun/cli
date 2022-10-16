@@ -1,7 +1,9 @@
 package com.datastax.astra.cli.streaming;
 
-import com.datastax.astra.cli.core.AbstractConnectedCmd;
+import com.datastax.astra.cli.core.AbstractCmd;
+import com.datastax.astra.cli.utils.AstraCliUtils;
 
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /**
@@ -15,11 +17,11 @@ import picocli.CommandLine.Command;
          subcommands = { StreamingCreateCmd.class, StreamingDeleteCmd.class,
                          StreamingExistCmd.class,  StreamingListCmd.class, 
                          StreamingPulsarTokenCmd.class, StreamingStatusCmd.class})
-public class StreamingCmd extends AbstractConnectedCmd {
+public class StreamingCmd extends AbstractCmd {
    
     /** {@inheritDoc} */
     public void execute() {
-        new StreamingListCmd().execute();
+        CommandLine.usage(StreamingCmd.class, System.out, AstraCliUtils.COLOR_SCHEME);
     }
 
 }

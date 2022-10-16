@@ -31,7 +31,7 @@ public class HelpCommandsTest extends AbstractCmdTest {
     @Test
     @Order(3)
     public void should_show_help_db_create() {
-        assertSuccessCli("help db create");
+        assertSuccessCli("db create --help");
     }
     
 }

@@ -1,7 +1,9 @@
 package com.datastax.astra.cli.iam;
 
-import com.datastax.astra.cli.core.AbstractConnectedCmd;
+import com.datastax.astra.cli.core.AbstractCmd;
+import com.datastax.astra.cli.utils.AstraCliUtils;
 
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 /**
@@ -14,11 +16,11 @@ import picocli.CommandLine.Command;
          mixinStandardHelpOptions = true,
          subcommands = { UserGetCmd.class, UserInviteCmd.class, 
                          UserDeleteCmd.class, UserListCmd.class })
-public class UserCmd extends AbstractConnectedCmd {
+public class UserCmd extends AbstractCmd {
    
     /** {@inheritDoc} */
     public void execute() {
-        new UserListCmd().execute();
+        CommandLine.usage(UserCmd.class, System.out, AstraCliUtils.COLOR_SCHEME);
     }
 
 }

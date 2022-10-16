@@ -2,6 +2,7 @@ package com.datastax.astra.cli.db;
 
 import com.datastax.astra.cli.core.AbstractConnectedCmd;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 
 /**
@@ -10,12 +11,20 @@ import picocli.CommandLine.Command;
  * @author Cedrick LUNVEN (@clunven)
  */
 @Command(name = "list", 
-         description = "List databases")
+         description = "List databases",
+         synopsisHeading = "%nUsage: ",
+         mixinStandardHelpOptions = true)
 public class DbListCmd extends AbstractConnectedCmd {
    
+    /**
+     * Working with databases.
+     */
+    @Inject 
+    DatabaseService dbService;
+    
     /** {@inheritDoc} */
     public void execute() {
-        OperationsDb.listDb();
+        dbService.listDb();
     }
 
 }

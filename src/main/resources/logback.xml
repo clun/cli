@@ -9,13 +9,8 @@
      <withJansi>false</withJansi>
         <appender-ref ref="STDOUT" />
     </logger>
-    <!--
-    <logger name="com.datastax.oss.driver" level="ERROR" additivity="false">
-        <appender-ref ref="STDOUT" />
-    </logger>
-    -->
     <root level="ERROR">
-     <withJansi>false</withJansi>
+     	<withJansi>false</withJansi>
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

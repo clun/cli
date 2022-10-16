@@ -1,11 +1,11 @@
 package com.datastax.astra.cli.utils;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
 
-import com.datastax.astra.cli.AstraCli;
 import com.datastax.astra.cli.core.out.AstraCliConsole;
+
+import picocli.CommandLine.Help.Ansi.Style;
+import picocli.CommandLine.Help.ColorScheme;
 
 /**
  * Utilities for cli. 
@@ -26,30 +26,15 @@ public class AstraCliUtils {
     /** Folder name to download archives */
     public static final String TMP_FOLDER = "tmp";
     
-    /** Hold properties. */
-    public static Properties properties;
-    
-    /**
-     * Read value from application.properties.
-     * 
-     * @param key
-     *      target key
-     * @return
-     *      key value
-     */
-    public static String readProperty(String key) {
-        if (properties == null) {
-            try {
-                properties = new Properties();
-                properties.load(AstraCli.class
-                    .getClassLoader()
-                    .getResourceAsStream("application.properties"));
-            } catch (IOException ex) {
-                throw new IllegalStateException(ex);
-            }
-        }
-        return properties.getProperty(key);
-    }
+    /** Color scheme for the CLI. */
+    public static final ColorScheme COLOR_SCHEME = new ColorScheme.Builder()
+                .commands    (Style.bold, Style.fg_yellow)
+                .options     (Style.fg_cyan)
+                .parameters  (Style.fg_yellow)
+                .optionParams(Style.italic)
+                .errors      (Style.fg_red, Style.bold)
+                .stackTraces (Style.italic)
+                .build();
     
     /**
      * Show version.
@@ -66,4 +51,5 @@ public class AstraCliUtils {
         }
         return versionPackage;
     }
+    
 }

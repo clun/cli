@@ -8,7 +8,6 @@ import com.datastax.astra.cli.config.ConfigCommand;
 import com.datastax.astra.cli.config.SetupCmd;
 import com.datastax.astra.cli.core.CliContext;
 import com.datastax.astra.cli.core.CliExecutionExceptionHandler;
-import com.datastax.astra.cli.core.CliExitCodeExceptionMapper;
 import com.datastax.astra.cli.core.CliParameterExceptionHandler;
 import com.datastax.astra.cli.core.CliVersionProvider;
 import com.datastax.astra.cli.db.DbCmd;
@@ -16,14 +15,13 @@ import com.datastax.astra.cli.iam.RoleCmd;
 import com.datastax.astra.cli.iam.UserCmd;
 import com.datastax.astra.cli.org.OrgCmd;
 import com.datastax.astra.cli.streaming.StreamingCmd;
+import com.datastax.astra.cli.utils.AstraCliUtils;
 
 import io.micronaut.configuration.picocli.MicronautFactory;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.env.Environment;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Help.Ansi.Style;
-import picocli.CommandLine.Help.ColorScheme;
 import picocli.CommandLine.HelpCommand;
 
 /**
@@ -78,16 +76,6 @@ public class AstraCli {
             CliContext.getInstance()
                       .setArguments(Arrays.asList(args));
             
-            // Color Scheme
-            ColorScheme colorScheme = new ColorScheme.Builder()
-                    .commands    (Style.bold, Style.fg_yellow)
-                    .options     (Style.fg_cyan)
-                    .parameters  (Style.fg_yellow)
-                    .optionParams(Style.italic)
-                    .errors      (Style.fg_red, Style.bold)
-                    .stackTraces (Style.italic)
-                    .build();
-            
             // Main execution
             return new CommandLine(new AstraCli(), new MicronautFactory(context))
                     // permissive
@@ -98,10 +86,8 @@ public class AstraCli {
                     .setParameterExceptionHandler(new CliParameterExceptionHandler())
                     // Custom exit codes for execution error
                     .setExecutionExceptionHandler(new CliExecutionExceptionHandler())
-                    // Mapping exception to error code
-                    .setExitCodeExceptionMapper(new CliExitCodeExceptionMapper())
                     // Color scheme
-                    .setColorScheme(colorScheme)
+                    .setColorScheme(AstraCliUtils.COLOR_SCHEME)
                     // SubCommands
                     .addSubcommand(new HelpCommand())
                     .addSubcommand(new SetupCmd())

@@ -31,7 +31,7 @@ public class OrgCommandTest extends AbstractCmdTest {
     public void should_org_errors() {
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "organe");
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "org invalid");
-        assertExitCodeCli(ExitCode.INVALID_OPTION_VALUE, "org -o yaml");
+        assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "org -o yaml");
     }
 
 }

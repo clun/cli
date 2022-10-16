@@ -33,7 +33,11 @@ public enum ExitCode {
     PARSE_ERROR(1),
     
     /** code. */
-    UNAVAILABLE(2),
+    INVALID_ARGUMENT(2, 
+      UnmatchedArgumentException.class),
+    
+    /** code. */
+    UNAVAILABLE(11),
     
     /** code. */
     NOT_IMPLEMENTED(3),
@@ -41,7 +45,7 @@ public enum ExitCode {
     /** code. */
     
     INVALID_PARAMETER(4, 
-       DatabaseNameNotUniqueException.class, 
+       DatabaseNameNotUniqueException.class,
        InvalidArgumentException.class),
     
     /** code. */
@@ -74,14 +78,7 @@ public enum ExitCode {
       DatabaseNotSelectedException.class), 
     
     /** code. */
-    INVALID_ARGUMENT(11, 
-      UnmatchedArgumentException.class),
-    
-    /** code. */
     INVALID_OPTION(12),
-    
-    /** code. */
-    INVALID_OPTION_VALUE(13),
     
     /** code. */
     UNRECOGNIZED_COMMAND(14),

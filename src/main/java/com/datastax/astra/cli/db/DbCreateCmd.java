@@ -2,14 +2,12 @@ package com.datastax.astra.cli.db;
 
 import com.datastax.astra.cli.core.AbstractCmd;
 import com.datastax.astra.cli.core.AbstractConnectedCmd;
-import com.datastax.astra.cli.core.exception.InvalidArgumentException;
 import com.datastax.astra.cli.core.out.LoggerShell;
-import com.datastax.astra.cli.db.exception.DatabaseNameNotUniqueException;
 import com.datastax.astra.cli.db.exception.DatabaseNotFoundException;
 import com.datastax.astra.cli.db.exception.InvalidDatabaseStateException;
-import com.datastax.astra.cli.db.exception.KeyspaceAlreadyExistException;
 import com.datastax.astra.sdk.databases.domain.DatabaseStatusType;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -23,8 +21,9 @@ import picocli.CommandLine.Parameters;
  */
 @Command(name = AbstractCmd.CREATE, 
          description = "Create a database",
+         synopsisHeading = "%nUsage: ",
          mixinStandardHelpOptions = true)
-public class DbCreateCmd extends AbstractConnectedCmd {
+public class DbCreateCmd extends AbstractConnectedCmd implements DatabaseConstants {
     
     /**
      * Database name or identifier
@@ -49,7 +48,7 @@ public class DbCreateCmd extends AbstractConnectedCmd {
             paramLabel = "REGION", 
             arity = "1", 
             description = "Cloud provider region to provision")
-    protected String databaseRegion = OperationsDb.DEFAULT_REGION;
+    protected String databaseRegion = DEFAULT_REGION;
     
     /**
      * Default keyspace created with the Db
@@ -73,14 +72,18 @@ public class DbCreateCmd extends AbstractConnectedCmd {
             description = "Provide a limit to the wait period in seconds, default is 180s.")
     protected int timeout = 180;
     
+    /**
+     * Working with databases.
+     */
+    @Inject 
+    DatabaseService dbService;
+    
     /** {@inheritDoc} */
     @Override
-    public void execute() 
-    throws DatabaseNameNotUniqueException, DatabaseNotFoundException, 
-           InvalidDatabaseStateException, InvalidArgumentException, KeyspaceAlreadyExistException  {
-        OperationsDb.createDb(db, databaseRegion, defaultKeyspace, ifNotExist);
+    public void execute() {
+        dbService.createDb(db, databaseRegion, defaultKeyspace, ifNotExist);
         if (wait) {
-            switch(OperationsDb.waitForDbStatus(db, DatabaseStatusType.ACTIVE, timeout)) {
+            switch(dbService.waitForDbStatus(db, DatabaseStatusType.ACTIVE, timeout)) {
                 case NOT_FOUND:
                     throw new DatabaseNotFoundException(db);
                 case UNAVAILABLE:

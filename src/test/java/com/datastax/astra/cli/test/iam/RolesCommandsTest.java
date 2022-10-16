@@ -32,7 +32,7 @@ public class RolesCommandsTest extends AbstractCmdTest {
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "role list -w");
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "role list DB");
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "role coaster");
-        assertExitCodeCli(ExitCode.INVALID_OPTION_VALUE, "role list -o yaml");
+        assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "role list -o yaml");
     }
     
     @Test

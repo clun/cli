@@ -1,3 +1,16 @@
 micronaut:
   application:
-    name: micronautAstraCli
+    name: astra CLI
+ 
+## CLI Configuration
+cqlsh: 
+  url: https://downloads.datastax.com/enterprise/cqlsh-astra.tar.gz
+  tarball: cqlsh-astra.tar.gz
+
+dsbulk:
+  url: https://downloads.datastax.com/dsbulk/
+  version: 1.10.0
+
+pulsar-shell:
+    url: https://github.com/datastax/pulsar/releases/download/ls210_1.1/
+    version: 2.10.1.1 

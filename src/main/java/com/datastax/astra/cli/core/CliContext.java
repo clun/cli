@@ -85,19 +85,45 @@ public class CliContext {
         validateToken();
     }
     
+    /**
+     * Access if color is provided or not
+     * 
+     * @return
+     *    no color
+     */
     public boolean isNoColor() {
         return coreOptions != null && coreOptions.noColor();
     }
+    
+    /**
+     * Access if verbose is active or not
+     * 
+     * @return
+     *    no color
+     */
     public boolean isVerbose() {
         return coreOptions != null && coreOptions.verbose();
     }
+    
+    /**
+     * Access if extra configuration file provided
+     * 
+     * @return
+     *    configuration file
+     */
     public String getConfigFilename() {
         if (coreOptions != null) {
             return coreOptions.configFilename();   
         }
         return AstraConfiguration.getDefaultConfigurationFileName();
-         
     }
+    
+    /**
+     * Access output format
+     * 
+     * @return
+     *      output format
+     */
     public OutputFormat getOutputFormat() {
         if (coreOptions != null) {
             return coreOptions.output();   

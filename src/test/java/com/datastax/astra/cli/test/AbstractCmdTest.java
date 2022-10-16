@@ -77,7 +77,7 @@ public abstract class AbstractCmdTest {
         assertExitCodeCli(ExitCode.SUCCESS, cmd);
     }
     
-    protected void assertSuccessCli(String[] cmd) {
+    protected void assertSuccessCli(String... cmd) {
         assertExitCodeCli(ExitCode.SUCCESS, cmd);
     }
     

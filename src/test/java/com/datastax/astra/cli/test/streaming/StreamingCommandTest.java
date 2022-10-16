@@ -65,7 +65,7 @@ public class StreamingCommandTest extends AbstractCmdTest {
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "streaming list -w");
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "streaming list DB");
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "streaming coaster");
-        assertExitCodeCli(ExitCode.INVALID_OPTION_VALUE, "streaming list -o yaml");
+        assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "streaming list -o yaml");
     }
     
     @Test
@@ -89,7 +89,7 @@ public class StreamingCommandTest extends AbstractCmdTest {
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "streaming invalid");
         assertExitCodeCli(ExitCode.NOT_FOUND, "streaming get " + RANDOM_TENANT + " --invalid");
         assertExitCodeCli(ExitCode.NOT_FOUND, "streaming get does-not-exist");
-        assertExitCodeCli(ExitCode.INVALID_OPTION_VALUE, "streaming get " + RANDOM_TENANT + " -o yaml"); 
+        assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "streaming get " + RANDOM_TENANT + " -o yaml"); 
     }
     
     @Test

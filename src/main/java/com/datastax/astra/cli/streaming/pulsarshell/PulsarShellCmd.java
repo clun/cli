@@ -6,6 +6,7 @@ import com.datastax.astra.cli.core.exception.FileSystemException;
 import com.datastax.astra.cli.streaming.OperationsStreaming;
 import com.datastax.astra.cli.streaming.exception.TenantNotFoundException;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -52,6 +53,9 @@ public class PulsarShellCmd extends AbstractConnectedCmd {
             description= "Display raw output of the commands without the fancy progress visualization. ")
     protected boolean noProgress = false;
     
+    @Inject
+    protected OperationsStreaming operationStreaming;
+    
     /** {@inheritDoc} */
     public void execute() 
     throws TenantNotFoundException, CannotStartProcessException, FileSystemException {
@@ -60,7 +64,7 @@ public class PulsarShellCmd extends AbstractConnectedCmd {
         options.setFailOnError(failOnError);
         options.setFileName(fileName);
         options.setNoProgress(noProgress);
-        OperationsStreaming.startPulsarShell(options, tenant);
+        operationStreaming.startPulsarShell(options, tenant);
     }
     
 }

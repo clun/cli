@@ -1,5 +1,7 @@
 package com.datastax.astra.cli.core;
 
+import java.util.stream.Stream;
+
 import picocli.CommandLine;
 import picocli.CommandLine.IExecutionExceptionHandler;
 import picocli.CommandLine.ParseResult;
@@ -19,9 +21,11 @@ public class CliExecutionExceptionHandler implements IExecutionExceptionHandler 
         if (ex.getMessage() != null) {
             cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
         }
-        return cmd.getExitCodeExceptionMapper() != null
-                    ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
-                    : cmd.getCommandSpec().exitCodeOnExecutionException();
+        return Stream.of(ExitCode.values())
+                .filter(current -> current.getExceptions().contains(ex.getClass()))
+                .findFirst()
+                .orElse(ExitCode.INTERNAL_ERROR)
+                .getCode();
     }
 
 }

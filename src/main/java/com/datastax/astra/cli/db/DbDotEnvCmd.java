@@ -7,6 +7,7 @@ import com.datastax.astra.cli.core.exception.InvalidArgumentException;
 import com.datastax.astra.cli.db.exception.DatabaseNameNotUniqueException;
 import com.datastax.astra.cli.db.exception.DatabaseNotFoundException;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -19,8 +20,9 @@ import picocli.CommandLine.Parameters;
 @Command(
         name = "create-dotenv", 
         description = "Generate .env file with environment variables", 
+        synopsisHeading = "%nUsage: ",
         mixinStandardHelpOptions = true)
-public class DbDotEnvCmd extends AbstractConnectedCmd {
+public class DbDotEnvCmd extends AbstractConnectedCmd implements DatabaseConstants {
     
     /**
      * Database name or identifier
@@ -38,7 +40,7 @@ public class DbDotEnvCmd extends AbstractConnectedCmd {
             arity = "1",
             paramLabel = "REGION", 
             description = "Cloud provider region to provision")
-    protected String region = OperationsDb.DEFAULT_REGION;
+    protected String region = DEFAULT_REGION;
     
     /**
      * Default keyspace created with the Db
@@ -58,10 +60,16 @@ public class DbDotEnvCmd extends AbstractConnectedCmd {
             description = "Destination for the config file")
     protected String destination = Paths.get(".").toAbsolutePath().normalize().toString();
     
+    /**
+     * Working with databases.
+     */
+    @Inject 
+    DatabaseService dbService;
+    
     /** {@inheritDoc} */
     public void execute() 
     throws DatabaseNameNotUniqueException, DatabaseNotFoundException, InvalidArgumentException {
-       OperationsDb.generateDotEnvFile(db, keyspace, region, destination);
+        dbService.generateDotEnvFile(db, keyspace, region, destination);
     }
 
 }

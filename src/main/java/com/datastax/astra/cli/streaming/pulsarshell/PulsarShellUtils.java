@@ -12,6 +12,7 @@ import com.datastax.astra.cli.core.exception.FileSystemException;
 import com.datastax.astra.cli.core.out.LoggerShell;
 import com.datastax.astra.cli.utils.AstraCliUtils;
 import com.datastax.astra.cli.utils.FileUtils;
+import com.datastax.astra.cli.utils.PulsarShellSettings;
 import com.datastax.astra.sdk.streaming.domain.Tenant;
 
 /**
@@ -19,20 +20,8 @@ import com.datastax.astra.sdk.streaming.domain.Tenant;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
+
 public class PulsarShellUtils {
-    
-    /** Version Number. */
-    public static final String LUNA_VERSION = AstraCliUtils.readProperty("pulsar.shell.version");
-    
-    /** Archive name. */
-    public static final String LUNA_TARBALL = "lunastreaming-shell-" + LUNA_VERSION + "-bin.tar.gz";
-    
-    /** Archive name. */
-    public static final String LUNA_FOLDER = "lunastreaming-shell-" + LUNA_VERSION + "";
-    
-    /** Pulsar. */
-    public static final String LUNA_URL = AstraCliUtils.readProperty("pulsar.shell.url") + LUNA_TARBALL;
-    
     /**
      * Hide default construtor
      */
@@ -83,44 +72,48 @@ public class PulsarShellUtils {
      * @return
      *      folder for configuration
      */
-    public static String getConfigurationFolder() {
+    public static String getConfigurationFolder(PulsarShellSettings settings) {
         return AstraCliUtils.ASTRA_HOME + 
-                File.separator + LUNA_FOLDER + 
+                File.separator + "lunastreaming-shell-" + settings.version() +
                 File.separator + "conf";
     }
     
     /**
      * Check if lunastreaming-shell has been installed.
      *
+     * @param settings
+     *      settings coming from properties
      * @return
      *      if the folder exist
      */
-    public static boolean isPulsarShellInstalled() {
-       File pulsarShellFolder = new File(AstraCliUtils.ASTRA_HOME + File.separator + LUNA_FOLDER);
+    public static boolean isPulsarShellInstalled(PulsarShellSettings settings) {
+       File pulsarShellFolder = new File(AstraCliUtils.ASTRA_HOME + File.separator + "lunastreaming-shell-" + settings.version());
        return pulsarShellFolder.exists() && pulsarShellFolder.isDirectory();
     }
     
     /**
      * Download targz and unzip.
      *
+     * @param settings
+     *      settings coming from properties
      * @throws FileSystemException
      *      file system exception 
      */
-    public static void installPulsarShell() 
+    public static void installPulsarShell(PulsarShellSettings settings) 
     throws FileSystemException {
-        if (!isPulsarShellInstalled()) {
+        if (!isPulsarShellInstalled(settings)) {
             LoggerShell.success("pulsar-shell first launch, downloading (~ 60MB), please wait...");
-            String destination = AstraCliUtils.ASTRA_HOME + File.separator + LUNA_TARBALL;
-            FileUtils.downloadFile(LUNA_URL, destination);
+            String destination = AstraCliUtils.ASTRA_HOME + File.separator + "lunastreaming-shell-%s-bin.tar.gz".formatted(settings.version());
+            FileUtils.downloadFile(settings.url(), destination);
             File pulsarShelltarball = new File (destination);
             if (pulsarShelltarball.exists()) {
                 LoggerShell.info("File Downloaded. Extracting archive, please wait it can take a minute...");
                 try {
                     FileUtils.extactTargzInAstraCliHome(pulsarShelltarball);
-                    if (isPulsarShellInstalled()) {
+                    if (isPulsarShellInstalled(settings)) {
                         // Change file permission
                         File pulsarShellFile = new File(AstraCliUtils.ASTRA_HOME + File.separator  
-                                + LUNA_FOLDER + File.separator 
+                                + "lunastreaming-shell-" + settings.version() + File.separator 
                                 + "bin" + File.separator  
                                 + "pulsar-shell");
                         if (!pulsarShellFile.setExecutable(true, false)) {
@@ -152,6 +145,8 @@ public class PulsarShellUtils {
      * 
      * @param options
      *      command to start pulsar-shell
+     * @param settings
+     *      settings coming from properties
      * @param tenant
      *      current tenant
      * @param configFile
@@ -163,7 +158,7 @@ public class PulsarShellUtils {
      * @throws ConfigurationException
      *      starting pulsar shell 
      */
-    public static Process runPulsarShell(PulsarShellOptions options, Tenant tenant, File configFile) 
+    public static Process runPulsarShell(PulsarShellSettings settings, PulsarShellOptions options, Tenant tenant, File configFile) 
     throws IOException, ConfigurationException {
         
         if (!configFile.exists()) {
@@ -173,7 +168,7 @@ public class PulsarShellUtils {
         
         List<String> pulsarShCommand = new ArrayList<>();
         pulsarShCommand.add(new StringBuilder()
-                .append(AstraCliUtils.ASTRA_HOME + File.separator + LUNA_FOLDER)
+                .append(AstraCliUtils.ASTRA_HOME + File.separator + "lunastreaming-shell-" + settings.version())
                 .append(File.separator + "bin")
                 .append(File.separator + "pulsar-shell")
                 .toString());
