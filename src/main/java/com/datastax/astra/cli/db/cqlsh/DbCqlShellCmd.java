@@ -69,7 +69,7 @@ public class DbCqlShellCmd extends AbstractConnectedCmd {
     
     /** {@inheritDoc}  */
     public void execute() {
-        CqlShellOption options = new CqlShellOption(
+        CqlShellOptions options = new CqlShellOptions(
                 false, cqlShOptionDebug, cqlshOptionEncoding,
                 cqlshOptionExecute,cqlshOptionFile,cqlshOptionKeyspace);
         cqlshService.run(options, db);

@@ -1,16 +1,22 @@
 micronaut:
   application:
     name: astra CLI
+  http:
+    client:
+      connect-timeout: 10s
+      read-timeout: 30s
  
-## CLI Configuration
+# Configuration of CqlShell
 cqlsh: 
   url: https://downloads.datastax.com/enterprise/cqlsh-astra.tar.gz
   tarball: cqlsh-astra.tar.gz
 
+# Configuration of Datastax Bulk
 dsbulk:
   url: https://downloads.datastax.com/dsbulk/
   version: 1.10.0
 
+# Configuration of Pulsar-shell
 pulsar-shell:
     url: https://github.com/datastax/pulsar/releases/download/ls210_1.1/
     version: 2.10.1.1 

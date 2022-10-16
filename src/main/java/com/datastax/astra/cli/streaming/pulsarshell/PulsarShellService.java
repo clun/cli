@@ -7,48 +7,71 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.datastax.astra.cli.core.exception.CannotStartProcessException;
 import com.datastax.astra.cli.core.exception.ConfigurationException;
 import com.datastax.astra.cli.core.exception.FileSystemException;
 import com.datastax.astra.cli.core.out.LoggerShell;
+import com.datastax.astra.cli.streaming.AstraStreamingDao;
+import com.datastax.astra.cli.streaming.exception.TenantNotFoundException;
 import com.datastax.astra.cli.utils.AstraCliUtils;
 import com.datastax.astra.cli.utils.FileUtils;
 import com.datastax.astra.cli.utils.PulsarShellSettings;
 import com.datastax.astra.sdk.streaming.domain.Tenant;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
 /**
- * Utilities to work with Pulsar
+ * Operations related to Pulsar shell
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-
-public class PulsarShellUtils {
-    /**
-     * Hide default construtor
-     */
-    private PulsarShellUtils() {}
+@Singleton
+public class PulsarShellService {
+    
+    @Inject
+    PulsarShellSettings settings;
+    
+    @Inject
+    AstraStreamingDao dao;
+    
+    /** Local installation for CqlSh. */
+    File pulsarLocalFolder;
+    
+    /** Configuration folder. */
+    String pulsarConfigurationFolder;
     
     /**
-     * Generate content of the File.
-     * 
-     * @param cloudProvider
-     *      cloud provider
-     * @param cloudRegion
-     *      cloud region
-     * @param pulsarToken
-     *      pulsar token
-     * @param destination
-     *      destination file
+     * Initialization.
      */
-    public static void generateConf(String cloudProvider, String cloudRegion, String pulsarToken, String destination) {
+    @PostConstruct
+    public void init() {
+        pulsarConfigurationFolder = AstraCliUtils.ASTRA_HOME + 
+                File.separator + "lunastreaming-shell-" + settings.version() +
+                File.separator + "conf";
+        
+        pulsarLocalFolder = new File(AstraCliUtils.ASTRA_HOME 
+                + File.separator + "lunastreaming-shell-" + settings.version());
+    }
+    
+    /**
+     * Create Pulsar conf for a tenant if needed.
+     * 
+     * @param tenant
+     *      current tenant
+     */
+    public void createPulsarConf(Tenant tenant) {
+        
         FileWriter fileWriter = null;
         PrintWriter pw        = null;
         try {
-            fileWriter = new FileWriter(destination);
+            fileWriter = new FileWriter(getPulsarConfFile(tenant).getAbsolutePath());
             pw = new PrintWriter(fileWriter);
-            pw.printf("webServiceUrl=https://pulsar-%s-%s.api.streaming.datastax.com\n", cloudProvider, cloudRegion);
-            pw.printf("brokerServiceUrl=pulsar+ssl://pulsar-%s-%s.streaming.datastax.com:6651\n", cloudProvider, cloudRegion);
+            pw.printf("webServiceUrl=https://pulsar-%s-%s.api.streaming.datastax.com\n", tenant.getCloudProvider(), tenant.getCloudRegion());
+            pw.printf("brokerServiceUrl=pulsar+ssl://pulsar-%s-%s.streaming.datastax.com:6651\n", tenant.getCloudProvider(), tenant.getCloudRegion());
             pw.printf("authPlugin=org.apache.pulsar.client.impl.auth.AuthenticationToken\n");
-            pw.printf("authParams=token:%s\n", pulsarToken);
+            pw.printf("authParams=token:%s\n", tenant.getPulsarToken());
             pw.printf("tlsAllowInsecureConnection=%b\n", false);
             pw.printf("tlsEnableHostnameVerification=%b\n", true);
             pw.printf("useKeyStoreTls=%b\n", false);
@@ -56,6 +79,7 @@ public class PulsarShellUtils {
             pw.printf("tlsTrustStorePath=\n");
             pw.printf("tlsTrustStorePassword=\n");
             //pw.flush();
+            LoggerShell.info("Pulsar client.conf has been generated.");
         } catch (IOException e1) {
             throw new IllegalStateException("Cannot generate configuration file.");
         } finally {
@@ -67,28 +91,69 @@ public class PulsarShellUtils {
     }
     
     /**
-     * Configuration folder.
-     * 
+     * Provide path of the pulsar conf for a tenant.
+     *
+     * @param tenant
+     *      current tenant.
      * @return
-     *      folder for configuration
+     *      configuration file
      */
-    public static String getConfigurationFolder(PulsarShellSettings settings) {
-        return AstraCliUtils.ASTRA_HOME + 
-                File.separator + "lunastreaming-shell-" + settings.version() +
-                File.separator + "conf";
+    private File getPulsarConfFile(Tenant tenant) {
+        return new File(pulsarConfigurationFolder + 
+                File.separator + "client" 
+                + "-" + tenant.getCloudProvider() 
+                + "-" + tenant.getCloudRegion()
+                + "-" + tenant.getTenantName()
+                + ".conf");
+    }
+    
+    /**
+     * Start Pulsar shell as a Process.
+     * 
+     * @param options
+     *      options from the comman dline
+     * @param tenantName
+     *      current tenant name
+     * @throws TenantNotFoundException
+     *      error if tenant is not found 
+     * @throws CannotStartProcessException
+     *      cannot start the process 
+     * @throws FileSystemException
+     *      cannot access configuration file
+     */
+    public void run(PulsarShellOptions options, String tenantName) 
+    throws TenantNotFoundException, CannotStartProcessException, FileSystemException {
+        
+        // Retrieve tenant information from devops Apis or exception
+        Tenant tenant = dao.getTenant(tenantName);
+        
+        // Download and install pulsar-shell tarball when needed
+        if (!isInstalled()) {
+            install();
+        }
+        
+        // Generating configuration file if needed (~/.astra/lunastreaming-shell-2.10.1.1/conf/...)
+        createPulsarConf(tenant);
+        
+        try {
+            System.out.println("Pulsar-shell is starting please wait for connection establishment...");
+            Process cqlShProc = startProcess(options, tenant, getPulsarConfFile(tenant));
+            cqlShProc.waitFor();
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+            LoggerShell.error("Cannot start Pulsar Shel :" + e.getMessage());
+            throw new CannotStartProcessException("pulsar-shell", e);
+        }
     }
     
     /**
      * Check if lunastreaming-shell has been installed.
      *
-     * @param settings
-     *      settings coming from properties
      * @return
      *      if the folder exist
      */
-    public static boolean isPulsarShellInstalled(PulsarShellSettings settings) {
-       File pulsarShellFolder = new File(AstraCliUtils.ASTRA_HOME + File.separator + "lunastreaming-shell-" + settings.version());
-       return pulsarShellFolder.exists() && pulsarShellFolder.isDirectory();
+    public boolean isInstalled() {
+       return pulsarLocalFolder.exists() && pulsarLocalFolder.isDirectory();
     }
     
     /**
@@ -99,9 +164,9 @@ public class PulsarShellUtils {
      * @throws FileSystemException
      *      file system exception 
      */
-    public static void installPulsarShell(PulsarShellSettings settings) 
+    public void install() 
     throws FileSystemException {
-        if (!isPulsarShellInstalled(settings)) {
+        if (!isInstalled()) {
             LoggerShell.success("pulsar-shell first launch, downloading (~ 60MB), please wait...");
             String destination = AstraCliUtils.ASTRA_HOME + File.separator + "lunastreaming-shell-%s-bin.tar.gz".formatted(settings.version());
             FileUtils.downloadFile(settings.url(), destination);
@@ -110,7 +175,7 @@ public class PulsarShellUtils {
                 LoggerShell.info("File Downloaded. Extracting archive, please wait it can take a minute...");
                 try {
                     FileUtils.extactTargzInAstraCliHome(pulsarShelltarball);
-                    if (isPulsarShellInstalled(settings)) {
+                    if (isInstalled()) {
                         // Change file permission
                         File pulsarShellFile = new File(AstraCliUtils.ASTRA_HOME + File.separator  
                                 + "lunastreaming-shell-" + settings.version() + File.separator 
@@ -145,8 +210,6 @@ public class PulsarShellUtils {
      * 
      * @param options
      *      command to start pulsar-shell
-     * @param settings
-     *      settings coming from properties
      * @param tenant
      *      current tenant
      * @param configFile
@@ -158,7 +221,7 @@ public class PulsarShellUtils {
      * @throws ConfigurationException
      *      starting pulsar shell 
      */
-    public static Process runPulsarShell(PulsarShellSettings settings, PulsarShellOptions options, Tenant tenant, File configFile) 
+    public Process startProcess(PulsarShellOptions options, Tenant tenant, File configFile) 
     throws IOException, ConfigurationException {
         
         if (!configFile.exists()) {
@@ -168,7 +231,7 @@ public class PulsarShellUtils {
         
         List<String> pulsarShCommand = new ArrayList<>();
         pulsarShCommand.add(new StringBuilder()
-                .append(AstraCliUtils.ASTRA_HOME + File.separator + "lunastreaming-shell-" + settings.version())
+                .append(pulsarLocalFolder)
                 .append(File.separator + "bin")
                 .append(File.separator + "pulsar-shell")
                 .toString());
@@ -177,23 +240,23 @@ public class PulsarShellUtils {
         pulsarShCommand.add("--config");
         pulsarShCommand.add(configFile.getAbsolutePath());
         
-        if (options.isNoProgress()) {
+        if (options.noProgress()) {
             pulsarShCommand.add("--no-progress");
         }
-        if (options.isFailOnError()) {
+        if (options.failOnError()) {
             pulsarShCommand.add("--fail-on-error");
         }
-        if (options.getExecute() != null) {
+        if (options.execute() != null) {
             pulsarShCommand.add("--execute-command");
-            pulsarShCommand.add(options.getExecute());
+            pulsarShCommand.add(options.execute());
         }
-        if (options.getFileName() != null) {
+        if (options.fileName() != null) {
             pulsarShCommand.add("--filename");
-            pulsarShCommand.add(options.getFileName());
+            pulsarShCommand.add(options.fileName());
         }
         
         LoggerShell.info("RUNNING: " + String.join(" ", pulsarShCommand));
-        ProcessBuilder pb =  new ProcessBuilder(pulsarShCommand.toArray(new String[0]));
+        ProcessBuilder pb = new ProcessBuilder(pulsarShCommand.toArray(new String[0]));
         pb.inheritIO();
         return pb.start();
     }

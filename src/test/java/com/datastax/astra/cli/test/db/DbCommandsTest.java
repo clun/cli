@@ -14,6 +14,7 @@ import com.datastax.astra.cli.db.DatabaseService;
 import com.datastax.astra.cli.db.exception.DatabaseNameNotUniqueException;
 import com.datastax.astra.cli.test.AbstractCmdTest;
 
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 
 /**
@@ -21,6 +22,7 @@ import jakarta.inject.Inject;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
+@MicronautTest
 @TestMethodOrder(OrderAnnotation.class)
 public class DbCommandsTest extends AbstractCmdTest {
     
@@ -95,11 +97,11 @@ public class DbCommandsTest extends AbstractCmdTest {
     @Test
     @Order(5)
     public void should_list_keyspaces()  {
-        //assertSuccessCli("db list-keyspaces %s".formatted(DB_TEST));
-        //assertSuccessCli("db list-keyspaces %s -v".formatted(DB_TEST));
-        //assertSuccessCli("db list-keyspaces %s --no-color".formatted(DB_TEST));
-        //assertSuccessCli("db list-keyspaces %s -o json".formatted(DB_TEST));
-        //assertSuccessCli("db list-keyspaces %s -o csv".formatted(DB_TEST));
+        assertSuccessCli("db list-keyspaces %s".formatted(DB_TEST));
+        assertSuccessCli("db list-keyspaces %s -v".formatted(DB_TEST));
+        assertSuccessCli("db list-keyspaces %s --no-color".formatted(DB_TEST));
+        assertSuccessCli("db list-keyspaces %s -o json".formatted(DB_TEST));
+        assertSuccessCli("db list-keyspaces %s -o csv".formatted(DB_TEST));
         assertExitCodeCli(ExitCode.NOT_FOUND, "db list-keyspaces does-not-exist");
     }
     

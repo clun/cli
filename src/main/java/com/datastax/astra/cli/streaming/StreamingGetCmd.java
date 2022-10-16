@@ -4,6 +4,7 @@ import com.datastax.astra.cli.core.AbstractCmd;
 import com.datastax.astra.cli.core.AbstractConnectedCmd;
 import com.datastax.astra.cli.streaming.exception.TenantNotFoundException;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -13,7 +14,11 @@ import picocli.CommandLine.Parameters;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-@Command(name = AbstractCmd.GET, description = "Show details of a tenant")
+@Command(
+        name = AbstractCmd.GET, 
+        description = "Show details of a tenant",
+        synopsisHeading = "%nUsage: ",
+        mixinStandardHelpOptions = true)
 public class StreamingGetCmd extends AbstractConnectedCmd {
 
     /** Enum for db get. */
@@ -41,12 +46,15 @@ public class StreamingGetCmd extends AbstractConnectedCmd {
             paramLabel = "KEY", description = ""
             + "Valid keys: "
             + "'status', 'cloud', 'pulsar_token', 'region'")
-    protected StreamingGetKeys key;
+    StreamingGetKeys key;
+    
+    @Inject
+    AstraStreamingService streamService;
     
     /** {@inheritDoc} */
     public void execute()
     throws TenantNotFoundException {
-        OperationsStreaming.showTenant(tenant, key);
+        streamService.showTenant(tenant, key);
     }
 
 }

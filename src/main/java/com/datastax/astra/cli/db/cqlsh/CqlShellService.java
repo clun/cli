@@ -31,7 +31,7 @@ import jakarta.inject.Singleton;
 public class CqlShellService {
    
     @Inject
-    CqlshSettings settings;
+    CqlShellConfig settings;
     
     @Inject
     DatabaseDao dbDao;
@@ -107,7 +107,7 @@ public class CqlShellService {
      * @return
      *      command line
      */
-    private List<String> buildCommandLine(CqlShellOption options, Database db) {
+    private List<String> buildCommandLine(CqlShellOptions options, Database db) {
         List<String> cqlSh = new ArrayList<>();
         cqlSh.add(new StringBuilder()
                 .append(cqlshLocalFolder.getAbsolutePath())
@@ -173,7 +173,7 @@ public class CqlShellService {
      * @throws FileSystemException
      *      cannot access file system 
      */
-    public void run(CqlShellOption options, String database) {
+    public void run(CqlShellOptions options, String database) {
         
         // Install Cqlsh for Astra and set permissions
         if (!isInstalled()) {
@@ -188,7 +188,7 @@ public class CqlShellService {
             LoggerShell.info("RUNNING: " + String.join(" ", commands));
             
             System.out.println("\nCqlsh is starting please wait for connection establishment...");
-            ProcessBuilder pb =  new ProcessBuilder(commands.toArray(new String[0]));
+            ProcessBuilder pb = new ProcessBuilder(commands.toArray(new String[0]));
             pb.inheritIO();
             Process cqlshProc = pb.start();
             if (cqlshProc == null) {

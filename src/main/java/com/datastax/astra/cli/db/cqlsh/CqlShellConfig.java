@@ -8,5 +8,5 @@ import io.micronaut.context.annotation.ConfigurationProperties;
  * @author Cedrick LUNVEN (@clunven)
  */
 @ConfigurationProperties("cqlsh")
-public record CqlshSettings(String url, String tarball) {}
+public record CqlShellConfig(String url, String tarball) {}
 

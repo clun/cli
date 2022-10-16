@@ -3,7 +3,6 @@ package com.datastax.astra.cli.streaming.pulsarshell;
 import com.datastax.astra.cli.core.AbstractConnectedCmd;
 import com.datastax.astra.cli.core.exception.CannotStartProcessException;
 import com.datastax.astra.cli.core.exception.FileSystemException;
-import com.datastax.astra.cli.streaming.OperationsStreaming;
 import com.datastax.astra.cli.streaming.exception.TenantNotFoundException;
 
 import jakarta.inject.Inject;
@@ -54,17 +53,14 @@ public class PulsarShellCmd extends AbstractConnectedCmd {
     protected boolean noProgress = false;
     
     @Inject
-    protected OperationsStreaming operationStreaming;
+    protected PulsarShellService pulsarShellService;
     
     /** {@inheritDoc} */
     public void execute() 
     throws TenantNotFoundException, CannotStartProcessException, FileSystemException {
-        PulsarShellOptions options = new PulsarShellOptions();
-        options.setExecute(execute);
-        options.setFailOnError(failOnError);
-        options.setFileName(fileName);
-        options.setNoProgress(noProgress);
-        operationStreaming.startPulsarShell(options, tenant);
+        pulsarShellService.run(
+                new PulsarShellOptions(execute, failOnError, 
+                        fileName, noProgress ), tenant);
     }
     
 }

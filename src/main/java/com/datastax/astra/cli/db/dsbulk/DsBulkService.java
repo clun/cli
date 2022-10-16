@@ -16,7 +16,6 @@ import com.datastax.astra.cli.utils.FileUtils;
 import com.datastax.astra.sdk.config.AstraClientConfig;
 import com.datastax.astra.sdk.databases.domain.Database;
 
-import io.micronaut.context.annotation.Value;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -28,14 +27,9 @@ import jakarta.inject.Singleton;
  */
 @Singleton
 public class DsBulkService {
-    
-    /** Url. */
-    @Value("${dsbulk.url}")
-    String url;
-    
-    /** Version. */
-    @Value("${dsbulk.version}")
-    String version;
+   
+    @Inject
+    DsBulkConfig config;
     
     /** Working with databases. */
     @Inject
@@ -54,7 +48,7 @@ public class DsBulkService {
     public void init() {
         dsbulkLocalFolder = new File(AstraCliUtils.ASTRA_HOME 
                 + File.separator 
-                + "dsbulk-" + version);
+                + "dsbulk-" + config.version());
     }
     
     /**
@@ -77,8 +71,10 @@ public class DsBulkService {
     public boolean install() {
         if (!isInstalled()) {
             LoggerShell.success("dsbulk first launch, downloading (~25MB), please wait...");
-            String destination = AstraCliUtils.ASTRA_HOME + File.separator + "dsbulk-" + version + ".tar.gz";
-            FileUtils.downloadFile(url + "dsbulk-" + version + ".tar.gz", destination);
+            String destination = AstraCliUtils.ASTRA_HOME 
+                    + File.separator + "dsbulk-" 
+                    + config.version() + ".tar.gz";
+            FileUtils.downloadFile(config.url() + "dsbulk-" + config.version() + ".tar.gz", destination);
             File dsbulkTarball = new File (destination);
             if (dsbulkTarball.exists()) {
                 LoggerShell.info("File Downloaded. Extracting archive, please wait...");
@@ -87,7 +83,7 @@ public class DsBulkService {
                     if (isInstalled()) {
                         // Change file permission
                         File dsBulkFile = new File(AstraCliUtils.ASTRA_HOME + File.separator  
-                                + "dsbulk-" + version + File.separator 
+                                + "dsbulk-" + config.version() + File.separator 
                                 + "bin" + File.separator  
                                 + "dsbulk");
                         if (!dsBulkFile.setExecutable(true, false)) {

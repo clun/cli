@@ -1,5 +1,6 @@
 package com.datastax.astra.cli.db.dsbulk;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -23,13 +24,17 @@ public class DbLoadCmd extends AbstractDsbulkDataCmd {
             description = "Enable or disable dry-run mode, a test mode that runs the "
                     + "command but does not load data. ")
     protected boolean dryRun = false;
-   
+    
+    /**
+     * Service layer for dsbulk. 
+     */
+    @Inject 
+    DsBulkService dsbulkService;
     
     /** {@inheritDoc} */
     @Override
     public void execute()  {
+        dsbulkService.load(this);
     }
-    
-    
 
 }

@@ -1,7 +1,8 @@
 package com.datastax.astra.cli.db;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,11 +11,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
 
 import com.datastax.astra.cli.core.AbstractConnectedCmd;
 import com.datastax.astra.cli.core.CliContext;
@@ -44,6 +40,11 @@ import com.datastax.astra.sdk.organizations.domain.Organization;
 import com.datastax.astra.sdk.utils.ApiLocator;
 
 import io.micronaut.core.util.StringUtils;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.client.DefaultHttpClientConfiguration;
+import io.micronaut.http.client.HttpClient;
+import io.micronaut.http.client.HttpClientConfiguration;
+import io.micronaut.http.client.netty.DefaultHttpClient;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -324,21 +325,28 @@ public class DatabaseService implements DatabaseConstants {
      *
      * @param db
      *      database name
+     * @return
+     *      evualurate success of the operation
      */
-    private static void resumeDbRequest(Database db) {
-        try(CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            StringBuilder keyspacesUrl = new StringBuilder(
-                        ApiLocator.getApiRestEndpoint(
-                                db.getId(), 
-                                db.getInfo().getRegion()));
-            keyspacesUrl.append("/v2/schemas/keyspace");
-            HttpUriRequestBase req = new HttpGet(keyspacesUrl.toString());
-            req.addHeader("accept", "application/json");
-            req.addHeader("X-Cassandra-Token", CliContext.getInstance().getToken());
-            httpClient.execute(req);
-         } catch (IOException e) {
-             throw new IllegalArgumentException(e);
-         }
+    private static boolean resumeDbRequest(Database db) {
+        
+        try {
+            HttpClientConfiguration configuration = new DefaultHttpClientConfiguration();
+            configuration.setReadTimeout(Duration.ofSeconds(30));
+                    
+            String uri = new StringBuilder(ApiLocator.getApiRestEndpoint(
+                            db.getId(), db.getInfo().getRegion())).toString();
+            HttpClient client = new DefaultHttpClient(new URI(uri), configuration);
+            client.toBlocking()
+                  .retrieve(HttpRequest.GET("/v2/schemas/keyspace")
+                    .accept("application/json")
+                    .header("X-Cassandra-Token", CliContext.getInstance().getToken()));
+            return true;
+        } catch (Exception e) {
+             LoggerShell.warning("Resuming request might have failed, please check %s"
+                     .formatted(e.getMessage()));
+             return false;
+        }
     }
     
     /**

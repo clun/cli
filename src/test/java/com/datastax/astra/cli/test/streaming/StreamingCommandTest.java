@@ -87,7 +87,7 @@ public class StreamingCommandTest extends AbstractCmdTest {
     @Order(6)
     public void should_get_tenant_errors() {
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "streaming invalid");
-        assertExitCodeCli(ExitCode.NOT_FOUND, "streaming get " + RANDOM_TENANT + " --invalid");
+        assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "streaming get " + RANDOM_TENANT + " --invalid");
         assertExitCodeCli(ExitCode.NOT_FOUND, "streaming get does-not-exist");
         assertExitCodeCli(ExitCode.INVALID_ARGUMENT, "streaming get " + RANDOM_TENANT + " -o yaml"); 
     }

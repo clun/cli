@@ -2,6 +2,7 @@ package com.datastax.astra.cli.streaming;
 
 import com.datastax.astra.cli.core.AbstractConnectedCmd;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -10,7 +11,10 @@ import picocli.CommandLine.Parameters;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-@Command(name = OperationsStreaming.CMD_EXIST, description = "Show existence of a tenant")
+@Command(name = "exist", 
+         description = "Show existence of a tenant",
+         synopsisHeading = "%nUsage: ",
+         mixinStandardHelpOptions = true)
 public class StreamingExistCmd extends AbstractConnectedCmd {
 
     /**
@@ -20,11 +24,14 @@ public class StreamingExistCmd extends AbstractConnectedCmd {
             arity = "1",
             paramLabel = "TENANT",
             description = "Tenant name (unique for the region)")
-    public String tenant;
+    String tenant;
+    
+    @Inject
+    AstraStreamingService streamService;
     
     /** {@inheritDoc} */
     public void execute() {
-        OperationsStreaming.showTenantExistence(tenant);
+        streamService.showTenantExistence(tenant);
     }
 
 }

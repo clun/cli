@@ -4,6 +4,7 @@ import com.datastax.astra.cli.core.AbstractCmd;
 import com.datastax.astra.cli.core.AbstractConnectedCmd;
 import com.datastax.astra.cli.streaming.exception.TenantNotFoundException;
 
+import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -12,7 +13,11 @@ import picocli.CommandLine.Parameters;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-@Command(name = AbstractCmd.DELETE, description = "Delete an existing tenant")
+@Command(
+        name = AbstractCmd.DELETE, 
+        description = "Delete an existing tenant",
+        synopsisHeading = "%nUsage: ",
+        mixinStandardHelpOptions = true)
 public class StreamingDeleteCmd extends AbstractConnectedCmd {
     
     /**
@@ -22,12 +27,15 @@ public class StreamingDeleteCmd extends AbstractConnectedCmd {
             arity = "1",
             paramLabel = "TENANT",
             description = "Tenant name (unique for the region)")
-    public String tenant;
+    String tenant;
+    
+    @Inject
+    AstraStreamingService streamService;
     
     /** {@inheritDoc} */
     public void execute()
     throws TenantNotFoundException {
-        OperationsStreaming.deleteTenant(tenant);
+        streamService.deleteTenant(tenant);
     }
     
 }

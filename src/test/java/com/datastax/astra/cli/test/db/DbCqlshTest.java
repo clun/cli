@@ -26,9 +26,9 @@ public class DbCqlshTest extends AbstractCmdTest {
     public final static String FLAG_TOOLS = "disable_tools";
     
     /** flag coding for tool disabling. */
-    
     public static boolean disableTools = false;
     
+    /** Inject Service. */
     @Inject
     public CqlShellService cqlshService;
     
@@ -42,7 +42,7 @@ public class DbCqlshTest extends AbstractCmdTest {
     @Order(1)
     public void should_install_Cqlsh()  throws Exception {
         if (!disableTools) {
-            cqlshService.install();;
+            cqlshService.install();
             Assertions.assertTrue(cqlshService.isInstalled());
         }
     }
@@ -52,7 +52,7 @@ public class DbCqlshTest extends AbstractCmdTest {
     public void should_start_shell() {
         if (!disableTools) {
             assertSuccessCli("db", "cqlsh", DB_TEST, 
-                    "-e", "SELECT * FROM system.local");
+                    "-e", "SELECT cql_version FROM system.local");
         }   
     }
     
